@@ -1,0 +1,61 @@
+package com.ayush.rateLimiter;
+
+public class Response {
+    private double retryAfter;
+    private boolean allowed;
+    private String message;
+    private int limit;
+    private int remainingTokens;
+    private String policyId;
+
+    public Response() {
+    }
+
+    public double getRetryAfter() {
+        return retryAfter;
+    }
+
+    public void setRetryAfter(double retryAfter) {
+        this.retryAfter = retryAfter;
+    }
+
+    public boolean getAllowed() {
+        return allowed;
+    }
+
+    public void setAllowed(boolean allowed) {
+        this.allowed = allowed;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public int getRemainingTokens() {
+        return remainingTokens;
+    }
+
+    public void setRemainingTokens(int remainingTokens) {
+        this.remainingTokens = remainingTokens;
+    }
+
+    public String getPolicyId() {
+        return policyId;
+    }
+
+    public void setPolicyId(String policyId) {
+        this.policyId = policyId;
+    }
+}
