@@ -7,7 +7,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 
 public class RateLimiterClient {
 
@@ -43,13 +42,28 @@ public class RateLimiterClient {
 
     }
 
-    public Response invokeRateLimit(String policyId, String userIp)
+    //It is the front desk of the SDK that will be called by the tenant application.
+    public Response invokeRateLimit(String policyId, String userId){
+
+        try{
+            return callBackend(policyId, userId);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return fallBackResponse();      //return the fail-open or closed strategy
+        }
+        catch(Exception ex){
+            return fallBackResponse();      //return the fail-open or closed strategy
+        }
+    }
+
+    private Response callBackend(String policyId, String userIp)
             throws IOException, InterruptedException {
 
         Request tenantRequest = new Request();
         tenantRequest.setPolicyId(policyId);
         tenantRequest.setUserIp(userIp);
 
+        //Converting the tenantRequest object to JSON string
         String requestBody;
         requestBody = objectMapper.writeValueAsString(tenantRequest);
 
@@ -57,7 +71,7 @@ public class RateLimiterClient {
                 ? backendUrl + "api/rate-limit"
                 : backendUrl + "/api/rate-limit";
 
-        //Building the Request
+        //Building the POST Request
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(rateLimiterConfig.getRequestTimeout())
@@ -77,6 +91,13 @@ public class RateLimiterClient {
                     httpResponse.statusCode());
         }
 
+        //Converts the Json response body into Java Object.
         return objectMapper.readValue(httpResponse.body(), Response.class);
+    }
+
+    private Response fallBackResponse(){
+        Response response = new Response();
+        response.setAllowed(rateLimiterConfig.isFailOpen());
+        return response;
     }
 }
